@@ -138,23 +138,7 @@ pub async fn list(args: ListArgs, config: Config) -> Result<(), Box<dyn Error>> 
 
 pub async fn print_result(res: Vec<Response>) {
     let mut status: Vec<Status> = Vec::new();
-    for r in res {
-        if r.code != 10000 {
-            pr(vec![r]).await;
-            return;
-        }
-        if let Some(data) = r.data {
-            match data {
-                crate::common::handle::Data::None => {}
-                crate::common::handle::Data::String(_) => {}
-                crate::common::handle::Data::Status(s) => {
-                    for i in &s {
-                        status.push(i.clone());
-                    }
-                }
-            }
-        }
-    }
+    if extract_resp_from(res, &mut status).await { return; }
 
     let mut total = 0;
     let mut total_added = 0;
@@ -288,12 +272,11 @@ pub async fn print_result(res: Vec<Response>) {
     );
 }
 
-pub async fn print_result_more(res: Vec<Response>) {
-    let mut status: Vec<Status> = Vec::new();
+async fn extract_resp_from(res: Vec<Response>, status: &mut Vec<Status>) -> bool {
     for r in res {
         if r.code != 10000 {
             pr(vec![r]).await;
-            return;
+            return true;
         }
         if let Some(data) = r.data {
             match data {
@@ -304,9 +287,16 @@ pub async fn print_result_more(res: Vec<Response>) {
                         status.push(i.clone());
                     }
                 }
+                crate::common::handle::Data::Matrix(_) => {}
             }
         }
     }
+    false
+}
+
+pub async fn print_result_more(res: Vec<Response>) {
+    let mut status: Vec<Status> = Vec::new();
+    extract_resp_from(res, &mut status).await;
 
     let mut total = 0;
     let mut total_added = 0;
@@ -461,23 +451,7 @@ pub async fn print_result_more(res: Vec<Response>) {
 
 pub async fn print_result_less(res: Vec<Response>) {
     let mut status: Vec<Status> = Vec::new();
-    for r in res {
-        if r.code != 10000 {
-            pr(vec![r]).await;
-            return;
-        }
-        if let Some(data) = r.data {
-            match data {
-                crate::common::handle::Data::None => {}
-                crate::common::handle::Data::String(_) => {}
-                crate::common::handle::Data::Status(s) => {
-                    for i in &s {
-                        status.push(i.clone());
-                    }
-                }
-            }
-        }
-    }
+    extract_resp_from(res, &mut status).await;
 
     let mut total = 0;
     let mut total_added = 0;

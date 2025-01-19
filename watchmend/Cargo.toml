@@ -49,3 +49,4 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 tracing-appender = "0.2"
 configparser = "3"
 toml = "0"
+sysinfo = {version = "0.33.1", features = ["system"]}

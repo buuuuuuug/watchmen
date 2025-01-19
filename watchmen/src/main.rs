@@ -31,5 +31,5 @@ async fn main() -> Result<(), Box<dyn Error>> {
             print_result(vec![Response::failed(e.to_string())]).await;
         }
     }
-    return Ok(());
+    Ok(())
 }

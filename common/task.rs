@@ -3,6 +3,7 @@ use std::{
     collections::HashMap,
     time::{SystemTime, UNIX_EPOCH},
 };
+use sysinfo::{Cpu, Disks, Pid, Process, System as sys, System};
 
 fn default_i64_0() -> i64 {
     0
@@ -185,4 +186,73 @@ unsafe impl Sync for TaskFlag {}
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Tasks {
     pub task: Vec<Task>,
+}
+
+// 监控指标
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Matrix {
+    pub system_matrix: SystemMatrix,
+    pub task_matrix: TaskMatrix,
+}
+
+impl Matrix {
+    pub fn new(pid: Pid) -> Self {
+        let mut system = sys::new_all();
+        let disks = Disks::new_with_refreshed_list();
+        system.refresh_all();
+        Matrix {
+            system_matrix: SystemMatrix::new(system, disks),
+            task_matrix: TaskMatrix::new(pid, system),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct SystemMatrix {
+    pub cpu_cnt: u32,
+    pub cpu_usage: f32,
+    pub memory_usage: f32,
+    pub memory_total: u64,
+    pub disk_avail_rate: f64,
+    pub os_info: String,
+}
+
+impl SystemMatrix {
+    pub fn new(system: System, disks: Disks) -> Self {
+        SystemMatrix {
+            cpu_cnt: system.cpus().len() as u32,
+            cpu_usage: system.cpus().iter().map(|cpu| cpu.cpu_usage()).sum::<f32>()
+                / system.cpus().len() as f32,
+            memory_usage: (system.used_memory() as f32 / system.total_memory() as f32) * 100f32,
+            memory_total: system.total_memory() / 1024 / 1024,
+            disk_avail_rate: disks.iter().map(|disk| disk.available_space()).sum::<u64>() as f64
+                / disks.iter().map(|disk| disk.total_space()).sum::<u64>() as f64
+                * 100.0,
+            os_info: format!(
+                "{} {} {} {}",
+                sys::name().unwrap(),
+                sys::kernel_version().unwrap(),
+                sys::os_version().unwrap(),
+                sys::host_name().unwrap()
+            ),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct TaskMatrix {
+    pub cpu_usage: f32,
+    pub memory_usage: u64,
+}
+
+impl TaskMatrix {
+    pub fn new(pid: Pid, system: System) -> Self {
+        match system.process(pid) {
+            None => Self::default(),
+            Some(process) => Self {
+                cpu_usage: process.cpu_usage(),
+                memory_usage: process.memory() / 1024 / 1024,
+            },
+        }
+    }
 }

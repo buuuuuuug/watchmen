@@ -1,5 +1,5 @@
 use std::{convert::Infallible, error::Error};
-
+use std::str::FromStr;
 use crate::common::config::Config;
 use crate::common::handle;
 use hyper::service::{make_service_fn, service_fn};
@@ -126,6 +126,30 @@ async fn handle_connection(req: Request<Body>) -> Result<Response<Body>, Infalli
                 "Content-Type".parse().unwrap(),
             );
             *response.body_mut() = Body::from(body);
+            Ok(response)
+        }
+        (&Method::GET, "/api/matrix") => {
+            let mut response = Response::new(Body::empty());
+            // 查询操作系统相关指标 CPU、内存、磁盘、文件描述符
+            let pid = req.uri().query_pairs().find(|(key, _)| key == "pid")
+                .and_then(|(_, value)| usize::from_str(&value).ok());
+
+            let body = match pid {
+                Some(pid) => serde_json::to_vec(&command::matrix(pid).unwrap()).unwrap(),
+                None => serde_json::to_vec(&command::matrix(None).unwrap()).unwrap(),
+            };
+            let headers = response.headers_mut();
+            headers.insert("Access-Control-Allow-Origin", "*".parse().unwrap());
+            headers.insert(
+                "Access-Control-Allow-Methods",
+                "GET, POST, PUT, DELETE".parse().unwrap(),
+            );
+            headers.insert(
+                "Access-Control-Allow-Headers",
+                "Content-Type".parse().unwrap(),
+            );
+            *response.body_mut() = Body::from(body);
+            // 指定进程的指标：CPU、内存、
             Ok(response)
         }
         _ => {

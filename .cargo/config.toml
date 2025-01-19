@@ -1,0 +1,7 @@
+[build]
+rustdocflags = ["-C", "target-cpu=native"]
+rustflags    = ["-g", "-C", "prefer-dynamic=no", "-C", "link-args=-static"]
+
+[bench]
+rustdocflags = ["-C", "target-cpu=native"]
+rustflags    = ["-g", "-C", "target-cpu=native"]

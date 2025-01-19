@@ -2,7 +2,7 @@ use std::{collections::HashMap, fmt::Display};
 
 use serde::{Deserialize, Serialize};
 
-use crate::common::task::{Task, TaskFlag, TaskType};
+use crate::common::task::{Matrix, Task, TaskFlag, TaskType};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Request {
@@ -66,6 +66,7 @@ pub enum Data {
     None,
     String(String),
     Status(Vec<Status>),
+    Matrix(Matrix),
 }
 
 impl Default for Data {
@@ -83,6 +84,11 @@ impl Display for Data {
                 for s in status {
                     write!(f, "{:?}", s)?;
                 }
+                Ok(())
+            }
+            Data::Matrix(matrix) => {
+                write!(f, "{:?}", matrix)?;
+
                 Ok(())
             }
         }

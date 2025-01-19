@@ -15,7 +15,7 @@ pub mod global {
         process::Stdio,
         time::{SystemTime, UNIX_EPOCH},
     };
-
+    use std::alloc::System;
     use crate::common::{
         config::{get_with_home, get_with_home_path},
         handle::{Data, Response, Status},
@@ -24,6 +24,8 @@ pub mod global {
     use lazy_static::lazy_static;
     use log::info;
     use regex::Regex;
+    use serde::{Deserialize, Serialize};
+    use sysinfo::Pid;
     use tokio::{
         io::AsyncWriteExt,
         process::{Child, Command},
@@ -905,5 +907,19 @@ pub mod global {
             "Task [{}] resumed",
             tf.id
         )))))
+    }
+
+    use crate::common::task::{Matrix, SystemMatrix, TaskMatrix};
+
+    // 获取监控指标 CPU使用率、内存使用率、网络流量、磁盘IO
+    pub(crate) fn matrix(id: usize) -> Result<Matrix, Box<dyn Error>> {
+        let mut matrix = Matrix::new(Pid::from(id));
+        // if let Ok(stat) = sys_info::System::new_all() {
+        //     matrix.cpu = stat.global_cpu_info().cpu_usage();
+        //     matrix.memory_usage = stat.used_memory() as f64 / stat.total_memory() as f64 * 100.0;
+        //     matrix.memory_total = stat.total_memory() as f64 / 1024.0 / 1024.0;
+        //     matrix.network = stat.networks().values().next().unwrap().received_bytes_per_sec() as f64 / 1024.0 / 1024.0
+        // }
+        Ok(matrix)
     }
 }

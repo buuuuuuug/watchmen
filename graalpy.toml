@@ -1,0 +1,11 @@
+[[task]]
+id = 12
+name = "graalpy"
+dir = "/Users/chaneychan/IdeaProjects/graalPy/conf/monit"
+command = "./graalpy -Xss8M -Dpython.InputFilePath=/Users/chaneychan/IdeaProjects/graalPy/fs/src"
+group = "graalpy"
+env = {}
+stdin = false
+stdout = "./logs/output.txt"
+stderr = "./logs/error.txt"
+task_type = { Async = { max_restart = 2, has_restart = 0, started_at = 0, stopped_at = 0 } }

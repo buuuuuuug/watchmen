@@ -5,10 +5,10 @@
 # socket: TCP socket
 # http: HTTP Api (Include Web panel)
 # redis: Redis pub/sub
-engines = ["sock"]
+engines = ["http"]
 
 # The default engine to use for connecting to the watchmen server
-engine = "sock"
+engine = "http"
 
 # The log directory of the watchmen server
 log_dir = "$HOME/.watchmen/logs"
@@ -34,7 +34,7 @@ pid = "$HOME/.watchmen/watchmen.pid"
 mat = "^.*\\.(toml|ini|json)$"
 
 # Tasks cache file, json format
-cache = "$HOME/.watchmen/cache.json"
+cache = "/Users/chaneychan/RustroverProjects/watchmen/cache.json"
 
 # Monitor interval for rerun tasks, u64: second
 interval = 5

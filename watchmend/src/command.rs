@@ -1,6 +1,6 @@
 use std::error::Error;
 
-use crate::common::handle::{Command, Request, Response};
+use crate::common::handle::{Command, Data, Request, Response};
 use tracing::info;
 
 use crate::global;
@@ -28,6 +28,22 @@ pub async fn handle_exec(request: Request) -> Result<Response, Box<dyn Error>> {
         }
         Err(e) => {
             info!("Request failed: {:?}, {}", req, e);
+            Ok(Response::failed(e.to_string()))
+        }
+    }
+}
+
+// 获取操作系统当前主要监控指标：CPU, 内存, 硬盘, 网络
+pub(crate) fn matrix(id: usize) -> Result<Response, Box<dyn Error>> {
+    info!("Receive request: matrix");
+    let r = global::matrix(id);
+    match r {
+        Ok(res) => {
+            info!("Request success: matrix");
+            Ok(Response::success(Some(Data::Matrix(res))))
+        }
+        Err(e) => {
+            info!("Request failed: matrix, {}", e);
             Ok(Response::failed(e.to_string()))
         }
     }

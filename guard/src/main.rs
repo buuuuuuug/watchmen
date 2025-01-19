@@ -82,9 +82,9 @@ async fn start_daemon(args: &[String]) -> Result<i32, Box<dyn Error>> {
             if res.success() {
                 let path_guard = path.join("guard.pid");
                 remove_file(path_guard).unwrap_or_default();
-                return Ok(10000);
+                Ok(10000)
             } else {
-                return Ok(50000);
+                Ok(50000)
             }
         }
         None => Ok(-1),

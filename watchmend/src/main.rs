@@ -74,5 +74,5 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     engine::start(config, load).await;
 
-    return Ok(());
+    Ok(())
 }
