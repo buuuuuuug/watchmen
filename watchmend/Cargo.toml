@@ -50,3 +50,4 @@ tracing-appender = "0.2"
 configparser = "3"
 toml = "0"
 sysinfo = {version = "0.33.1", features = ["system"]}
+actix-web = "4.9.0"

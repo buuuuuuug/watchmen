@@ -131,13 +131,9 @@ async fn handle_connection(req: Request<Body>) -> Result<Response<Body>, Infalli
         (&Method::GET, "/api/matrix") => {
             let mut response = Response::new(Body::empty());
             // 查询操作系统相关指标 CPU、内存、磁盘、文件描述符
-            let pid = req.uri().query_pairs().find(|(key, _)| key == "pid")
-                .and_then(|(_, value)| usize::from_str(&value).ok());
-
-            let body = match pid {
-                Some(pid) => serde_json::to_vec(&command::matrix(pid).unwrap()).unwrap(),
-                None => serde_json::to_vec(&command::matrix(None).unwrap()).unwrap(),
-            };
+            let splits: Vec<&str> = req.uri().query().unwrap().split("pid=").collect();
+            let pid = splits.get(1).unwrap().parse::<usize>().ok();
+            let body = serde_json::to_vec(&command::matrix(pid).unwrap()).unwrap();
             let headers = response.headers_mut();
             headers.insert("Access-Control-Allow-Origin", "*".parse().unwrap());
             headers.insert(

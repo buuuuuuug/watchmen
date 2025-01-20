@@ -12,6 +12,7 @@ pub mod socket;
 
 #[cfg(feature = "http")]
 pub mod http;
+mod actix_http;
 
 pub async fn start(config: Config, load: bool) {
     if load {
