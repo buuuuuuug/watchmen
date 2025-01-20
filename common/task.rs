@@ -3,7 +3,9 @@ use std::{
     collections::HashMap,
     time::{SystemTime, UNIX_EPOCH},
 };
-use sysinfo::{Cpu, Disks, Pid, Process, System as sys, System};
+use sysinfo::{
+    Disks, Pid, ProcessRefreshKind, ProcessesToUpdate, System as sys, System,
+};
 
 fn default_i64_0() -> i64 {
     0
@@ -201,8 +203,8 @@ impl Matrix {
         let disks = Disks::new_with_refreshed_list();
         system.refresh_all();
         Matrix {
-            system_matrix: SystemMatrix::new(system, disks),
-            task_matrix: TaskMatrix::new(pid, system),
+            system_matrix: SystemMatrix::new(&system, disks),
+            task_matrix: TaskMatrix::new(pid, &mut system),
         }
     }
 }
@@ -218,7 +220,7 @@ pub struct SystemMatrix {
 }
 
 impl SystemMatrix {
-    pub fn new(system: System, disks: Disks) -> Self {
+    pub fn new(system: &System, disks: Disks) -> Self {
         SystemMatrix {
             cpu_cnt: system.cpus().len() as u32,
             cpu_usage: system.cpus().iter().map(|cpu| cpu.cpu_usage()).sum::<f32>()
@@ -229,7 +231,7 @@ impl SystemMatrix {
                 / disks.iter().map(|disk| disk.total_space()).sum::<u64>() as f64
                 * 100.0,
             os_info: format!(
-                "{} {} {} {}",
+                "System-name:{} kernel-version:{} os-version:{} host-name:{}",
                 sys::name().unwrap(),
                 sys::kernel_version().unwrap(),
                 sys::os_version().unwrap(),
@@ -246,7 +248,13 @@ pub struct TaskMatrix {
 }
 
 impl TaskMatrix {
-    pub fn new(pid: Pid, system: System) -> Self {
+    pub fn new(pid: Pid, system: &mut System) -> Self {
+        std::thread::sleep(sysinfo::MINIMUM_CPU_UPDATE_INTERVAL);
+        system.refresh_processes_specifics(
+            ProcessesToUpdate::All,
+            true,
+            ProcessRefreshKind::nothing().with_cpu(),
+        );
         match system.process(pid) {
             None => Self::default(),
             Some(process) => Self {
