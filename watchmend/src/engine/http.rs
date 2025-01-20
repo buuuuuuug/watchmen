@@ -1,5 +1,4 @@
 use std::{convert::Infallible, error::Error};
-use std::str::FromStr;
 use crate::common::config::Config;
 use crate::common::handle;
 use hyper::service::{make_service_fn, service_fn};

@@ -15,7 +15,7 @@ pub mod global {
         process::Stdio,
         time::{SystemTime, UNIX_EPOCH},
     };
-    use std::alloc::System;
+    
     use crate::common::{
         config::{get_with_home, get_with_home_path},
         handle::{Data, Response, Status},
@@ -24,7 +24,7 @@ pub mod global {
     use lazy_static::lazy_static;
     use log::info;
     use regex::Regex;
-    use serde::{Deserialize, Serialize};
+    
     use sysinfo::Pid;
     use tokio::{
         io::AsyncWriteExt,
@@ -909,7 +909,7 @@ pub mod global {
         )))))
     }
 
-    use crate::common::task::{Matrix, SystemMatrix, TaskMatrix};
+    use crate::common::task::Matrix;
 
     // 获取监控指标 CPU使用率、内存使用率、网络流量、磁盘IO
     pub(crate) fn matrix(id: usize) -> Result<Matrix, Box<dyn Error>> {
