@@ -26,8 +26,8 @@ pub async fn rerun_tasks(delay: u64) -> Result<(), Box<dyn std::error::Error>> {
                 match (nd, nt) {
                     (Some(nd), Some(nt)) => {
                         let exec = chrono::NaiveDateTime::new(nd, nt);
-                        let exec_timestamp_utc = exec.timestamp();
-                        let now_timestamp_utc = now.naive_local().timestamp();
+                        let exec_timestamp_utc = exec.and_utc().timestamp();
+                        let now_timestamp_utc = now.naive_local().and_utc().timestamp();
                         let diff = (exec_timestamp_utc - now_timestamp_utc).abs() as u64;
                         if diff < delay && exec_timestamp_utc <= now_timestamp_utc {
                             if let Some(status) = task.status {

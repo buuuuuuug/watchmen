@@ -1,6 +1,6 @@
 use std::error::Error;
 
-use crate::common::handle::{Command, Data, Request, Response};
+use crate::common::handle::{Command, Request, Response};
 use tracing::info;
 use crate::common::task::Matrix;
 use crate::global;

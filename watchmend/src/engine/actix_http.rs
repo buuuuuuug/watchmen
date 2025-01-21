@@ -1,13 +1,11 @@
 // http impl in actix-web
 
-use std::error::Error;
 use actix_web::{get, post, web, HttpResponse, Responder};
 use actix_web::web::Json;
 use log::info;
 use serde::Deserialize;
 use crate::command;
 use crate::common::handle;
-use crate::common::task::Matrix;
 
 #[get("/")]
 async fn index() -> impl Responder {

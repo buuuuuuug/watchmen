@@ -1,6 +1,5 @@
 use colored::Colorize;
 use std::{error::Error, path::Path};
-use actix_web::{App, HttpServer};
 use log::error;
 use tracing::{info, Level};
 use tracing_subscriber::{fmt, EnvFilter};
