@@ -1,4 +1,6 @@
 use crate::common::config::Config;
+use actix_web::{App, HttpServer};
+use log::error;
 use tokio::sync::mpsc;
 use tracing::info;
 
@@ -11,10 +13,10 @@ pub mod sock;
 pub mod socket;
 
 #[cfg(feature = "http")]
-pub mod http;
 mod actix_http;
 
-pub async fn start(config: Config, load: bool) {
+
+pub async fn start(config: Config, load: bool) -> Result<(), Box<dyn std::error::Error>> {
     if load {
         if let Some(path) = config.watchmen.cache.clone() {
             global::set_cache(path.clone()).await;
@@ -26,6 +28,7 @@ pub async fn start(config: Config, load: bool) {
                 Err(e) => {
                     info!("Cache tasks load failed: {}", e);
                     println!("Cache tasks load failed: {}", e);
+                    error!("load config error");
                 }
             }
         } else {
@@ -54,32 +57,25 @@ pub async fn start(config: Config, load: bool) {
         tx_ctrl_d.send(15).await.unwrap();
     });
 
-    #[cfg(feature = "sock")]
-    // sock in config.watchmen.engines ?
-    let joinhandle_sock = if config.watchmen.engines.contains(&"sock".to_string()) {
-        info!("Starting sock...");
-        println!("Starting sock...");
-        Some(sock::start(config.clone()).await)
-    } else {
-        None
-    };
-
-    #[cfg(feature = "socket")]
-    let joinhandle_socket = if config.watchmen.engines.contains(&"socket".to_string()) {
-        info!("Starting socket...");
-        println!("Starting socket...");
-        Some(socket::start(config.clone()).await)
-    } else {
-        None
-    };
-
     #[cfg(feature = "http")]
-    let joinhandle_http = if config.watchmen.engines.contains(&"http".to_string()) {
+    if config.watchmen.engines.contains(&"http".to_string()) {
         info!("Starting http...");
         println!("Starting http...");
-        Some(http::start(config.clone()).await)
+        // Some(http::start(config.clone()).await)
+        HttpServer::new(|| {
+            App::new().service(actix_http::index)
+                .service(actix_http::index_html)
+                .service(actix_http::favicon)
+                .service(actix_http::index_css)
+                .service(actix_http::index_js)
+                .service(actix_http::api)
+                .service(actix_http::matrix)
+        })
+        .bind((config.http.host, config.http.port))?
+        .run()
+        .await?;
     } else {
-        None
+        return Err(Box::from("No engines started."));
     };
 
     info!("All engines started.");
@@ -93,19 +89,5 @@ pub async fn start(config: Config, load: bool) {
     s_ctrl_d.abort();
 
     println!("Shutting down...");
-
-    #[cfg(feature = "sock")]
-    if config.watchmen.engines.contains(&"sock".to_string()) && joinhandle_sock.is_some() {
-        joinhandle_sock.unwrap().abort();
-    }
-
-    #[cfg(feature = "socket")]
-    if config.watchmen.engines.contains(&"socket".to_string()) && joinhandle_socket.is_some() {
-        joinhandle_socket.unwrap().abort();
-    }
-
-    #[cfg(feature = "http")]
-    if config.watchmen.engines.contains(&"http".to_string()) && joinhandle_http.is_some() {
-        joinhandle_http.unwrap().abort();
-    }
+    Ok(())
 }

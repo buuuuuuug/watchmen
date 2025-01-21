@@ -1,5 +1,7 @@
 use colored::Colorize;
 use std::{error::Error, path::Path};
+use actix_web::{App, HttpServer};
+use log::error;
 use tracing::{info, Level};
 use tracing_subscriber::{fmt, EnvFilter};
 use watchmend::common::{arg::DaemonArgs, config::Config};
@@ -71,8 +73,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
     tokio::spawn(async move {
         let _ = run_monitor(config.watchmen.interval).await;
     });
+    if let Err(e) = engine::start(config, load).await {
+        error!("http error start error: {}", e);
+    }
 
-    engine::start(config, load).await;
 
     Ok(())
 }

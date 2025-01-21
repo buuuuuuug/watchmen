@@ -2,7 +2,7 @@ use std::error::Error;
 
 use crate::common::handle::{Command, Data, Request, Response};
 use tracing::info;
-
+use crate::common::task::Matrix;
 use crate::global;
 
 pub async fn handle_exec(request: Request) -> Result<Response, Box<dyn Error>> {
@@ -34,23 +34,18 @@ pub async fn handle_exec(request: Request) -> Result<Response, Box<dyn Error>> {
 }
 
 // 获取操作系统当前主要监控指标：CPU, 内存, 硬盘, 网络
-pub(crate) fn matrix(id: Option<usize>) -> Result<Response, Box<dyn Error>> {
+pub(crate) fn matrix(id: usize) -> Result<Matrix, Box<dyn Error>> {
     info!("Receive request: matrix");
-    match id {
-        Some(id) => {
-            let r = global::matrix(id);
-            match r {
-                Ok(res) => {
-                    info!("Request success: matrix");
-                    Ok(Response::success(Some(Data::Matrix(res))))
-                }
-                Err(e) => {
-                    info!("Request failed: matrix, {}", e);
-                    Ok(Response::failed(e.to_string()))
-                }
-            }
-        },
-        None => Ok(Response::failed("invalid process id".to_string()))
+    let r = global::matrix(id);
+    match r {
+        Ok(res) => {
+            info!("Request success: matrix");
+            Ok(res)
+        }
+        Err(e) => {
+            info!("Request failed: matrix, {}", e);
+            Err(e)
+        }
     }
 
 }
