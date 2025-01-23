@@ -5,7 +5,7 @@
 # socket: TCP socket
 # http: HTTP Api (Include Web panel)
 # redis: Redis pub/sub
-engines = ["http"]
+engines = ["http", "socket", "sock"]
 
 # The default engine to use for connecting to the watchmen server
 engine = "http"
@@ -38,6 +38,8 @@ cache = "/Users/chaneychan/RustroverProjects/watchmen/cache.json"
 
 # Monitor interval for rerun tasks, u64: second
 interval = 5
+
+schedule_interval = 20
 
 
 [sock]

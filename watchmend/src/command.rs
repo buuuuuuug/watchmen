@@ -37,15 +37,5 @@ pub async fn handle_exec(request: Request) -> Result<Response, Box<dyn Error>> {
 pub(crate) fn matrix(id: usize) -> Result<Matrix, Box<dyn Error>> {
     info!("Receive request: matrix");
     let r = global::matrix(id);
-    match r {
-        Ok(res) => {
-            info!("Request success: matrix");
-            Ok(res)
-        }
-        Err(e) => {
-            info!("Request failed: matrix, {}", e);
-            Err(e)
-        }
-    }
-
+    r
 }

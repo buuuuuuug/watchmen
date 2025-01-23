@@ -57,6 +57,25 @@ pub async fn start(config: Config, load: bool) -> Result<(), Box<dyn std::error:
         tx_ctrl_d.send(15).await.unwrap();
     });
 
+    #[cfg(feature = "sock")]
+    // sock in config.watchmen.engines ?
+    let joinhandle_sock = if config.watchmen.engines.contains(&"sock".to_string()) {
+        info!("Starting sock...");
+        println!("Starting sock...");
+        Some(sock::start(config.clone()).await)
+    } else {
+        None
+    };
+
+    #[cfg(feature = "socket")]
+    let joinhandle_socket = if config.watchmen.engines.contains(&"socket".to_string()) {
+        info!("Starting socket...");
+        println!("Starting socket...");
+        Some(socket::start(config.clone()).await)
+    } else {
+        None
+    };
+
     #[cfg(feature = "http")]
     if config.watchmen.engines.contains(&"http".to_string()) {
         info!("Starting http...");
@@ -89,5 +108,14 @@ pub async fn start(config: Config, load: bool) -> Result<(), Box<dyn std::error:
     s_ctrl_d.abort();
 
     println!("Shutting down...");
+    #[cfg(feature = "sock")]
+    if config.watchmen.engines.contains(&"sock".to_string()) && joinhandle_sock.is_some() {
+        joinhandle_sock.unwrap().abort();
+    }
+
+    #[cfg(feature = "socket")]
+    if config.watchmen.engines.contains(&"socket".to_string()) && joinhandle_socket.is_some() {
+        joinhandle_socket.unwrap().abort();
+    }
     Ok(())
 }

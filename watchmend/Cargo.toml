@@ -35,14 +35,13 @@ redis = []
 tokio = { version = "1", features = ["full"] }
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-hyper = { version = "0.14", features = ["full"] }
 clap = { version = "4", features = ["derive"] }
 lazy_static = "1.4.0"
-colored = "2"
+colored = "3.0.0"
 nanoid = "0.4.0"
 chrono = "0.4"
 log = "0.4"
-dirs = "5"
+dirs = "6"
 regex = "1.6"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }

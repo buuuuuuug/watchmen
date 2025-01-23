@@ -75,7 +75,5 @@ async fn main() -> Result<(), Box<dyn Error>> {
     if let Err(e) = engine::start(config, load).await {
         error!("http error start error: {}", e);
     }
-
-
     Ok(())
 }

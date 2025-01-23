@@ -122,6 +122,8 @@ pub struct Watchmen {
     pub mat: Option<String>,
     pub cache: Option<String>,
     pub interval: Option<u64>,
+    // 定时任务时间间隔，单位秒 default 20s
+    pub schedule_interval: Option<u64>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
