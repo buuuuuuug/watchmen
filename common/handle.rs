@@ -44,6 +44,10 @@ impl Response {
         }
     }
 
+    pub fn is_success(&self) -> bool {
+        self.code == 10000
+    }
+
     pub fn wrong(msg: String) -> Self {
         Self {
             code: 40000,

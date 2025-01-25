@@ -5,6 +5,7 @@ use tracing::{info, Level};
 use tracing_subscriber::{fmt, EnvFilter};
 use watchmend::common::{arg::DaemonArgs, config::Config};
 use watchmend::{engine, monitor::run_monitor};
+use watchmend::scheduled_task::run_scheduled;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -71,6 +72,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     tokio::spawn(async move {
         let _ = run_monitor(config.watchmen.interval).await;
+    });
+    tokio::spawn(async move {
+        let _ = run_scheduled(config.watchmen.schedule_interval).await;
     });
     if let Err(e) = engine::start(config, load).await {
         error!("http error start error: {}", e);
