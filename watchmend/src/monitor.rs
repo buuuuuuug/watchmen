@@ -56,8 +56,20 @@ pub async fn rerun_tasks(delay: u64) -> Result<(), Box<dyn std::error::Error>> {
             }
             crate::common::task::TaskType::Async(_) => {
                 if let Some(status) = task.status {
+                    // 用来处理启动时的重试
                     if status == "auto restart" {
                         info!("Restart task: {}", id);
+                        start(TaskFlag {
+                            id,
+                            name: None,
+                            group: None,
+                            mat: false,
+                        })
+                        .await?;
+                    }
+                    // 用来处理意外关闭的重启。 143 对应 `kill -15` 也就是说 kill -15 会被处理为正常关闭
+                    if status == "stopped" && task.code != Some(143) {
+                        info!("Recover task: {} from unexpected shutdown", id);
                         start(TaskFlag {
                             id,
                             name: None,
