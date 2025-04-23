@@ -68,6 +68,8 @@ pub async fn rerun_tasks(delay: u64) -> Result<(), Box<dyn std::error::Error>> {
                         .await?;
                     }
                     // 用来处理意外关闭的重启。 143 对应 `kill -15` 也就是说 kill -15 会被处理为正常关闭
+                    // 因为 watchmen 的网页控制台，停止进程是通过 kill -15 来停止进程
+                    // 如果是 143，说明是 kill -15，那么就不需要重启了
                     if status == "stopped" && task.code != Some(143) {
                         info!("Recover task: {} from unexpected shutdown", id);
                         start(TaskFlag {
